@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>關於我們 · 深圳市海豚實業有限公司 | PORPOISE</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Oswald:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#080c10;--dark:#0e1318;--card:#131a22;--border:rgba(255,255,255,0.07);
+  --accent:#00c8ff;--accent2:#0077ff;--gold:#f0b429;--text:#e8edf2;--muted:#6b7a8d;
+  --green:#00e676;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,12,16,0.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 5%;}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:62px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0;}
+.logo-text{font-family:'Oswald',sans-serif;font-size:20px;letter-spacing:3px;color:#fff;}
+.logo-sub{font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Space Mono',monospace;}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;letter-spacing:1px;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);}
+.nav-cta{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:9px 22px;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:opacity .2s;text-decoration:none;display:inline-flex;align-items:center;}
+.nav-cta:hover{opacity:0.85;}
+.hero{min-height:420px;display:flex;align-items:center;position:relative;overflow:hidden;padding:120px 5% 80px;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 30% 50%,rgba(0,120,255,0.1) 0%,transparent 60%),var(--black);z-index:0;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:50px 50px;z-index:0;}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;width:100%;}
+.hero-tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.hero-tag::before{content:'';width:24px;height:1px;background:var(--accent);}
+.hero-title{font-family:'Oswald',sans-serif;font-size:56px;font-weight:700;line-height:1.05;margin-bottom:16px;}
+.hero-title em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{color:var(--muted);font-size:16px;max-width:520px;line-height:1.9;}
+section{padding:80px 5%;}
+.section-inner{max-width:1200px;margin:0 auto;}
+.section-tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--accent);margin-bottom:12px;}
+.section-title{font-family:'Oswald',sans-serif;font-size:36px;font-weight:600;margin-bottom:20px;}
+.section-title em{font-style:normal;color:var(--accent);}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);margin:0;opacity:0.2;}
+.intro-section{background:var(--dark);}
+.intro-card{background:var(--card);border:1px solid var(--border);padding:48px;position:relative;overflow:hidden;}
+.intro-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);}
+.intro-text{font-size:16px;color:var(--muted);line-height:2.1;max-width:860px;}
+.intro-text strong{color:var(--text);font-weight:500;}
+.dept-section{background:var(--black);}
+.dept-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);margin-top:40px;}
+.dept-item{background:var(--dark);padding:28px 20px;text-align:center;transition:background .2s;}
+.dept-item:hover{background:var(--card);}
+.dept-icon{font-size:28px;margin-bottom:12px;display:block;}
+.dept-name{font-size:13px;color:var(--text);font-weight:500;line-height:1.5;}
+.dept-name span{display:block;font-size:11px;color:var(--muted);margin-top:4px;font-family:'Space Mono',monospace;letter-spacing:1px;}
+.stats-section{background:var(--dark);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:40px;}
+.stat-item{background:var(--dark);padding:36px 24px;text-align:center;position:relative;overflow:hidden;transition:background .2s;}
+.stat-item:hover{background:var(--card);}
+.stat-item::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;}
+.stat-item:hover::before{opacity:1;}
+.stat-num{font-family:'Oswald',sans-serif;font-size:42px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:6px;}
+.stat-num sup{font-size:18px;}
+.stat-label{font-size:12px;letter-spacing:2px;color:var(--muted);}
+.products-section{background:var(--black);}
+.product-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px;}
+.product-tag{background:var(--card);border:1px solid var(--border);padding:10px 20px;font-size:13px;color:var(--muted);letter-spacing:1px;transition:border-color .2s,color .2s,background .2s;cursor:default;}
+.product-tag:hover{border-color:rgba(0,200,255,0.4);color:var(--accent);background:rgba(0,200,255,0.05);}
+.product-tag.primary{border-color:rgba(0,200,255,0.3);color:var(--accent);background:rgba(0,200,255,0.07);}
+.info-section{background:var(--dark);}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px;}
+.info-card{background:var(--card);border:1px solid var(--border);padding:32px;position:relative;overflow:hidden;}
+.info-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);}
+.info-card-title{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:3px;color:var(--accent);margin-bottom:20px;}
+.info-row{display:flex;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:16px;}
+.info-row:last-child{border:none;}
+.info-key{font-size:12px;color:var(--muted);width:110px;flex-shrink:0;letter-spacing:0.5px;padding-top:1px;}
+.info-val{font-size:13px;color:var(--text);line-height:1.7;}
+.contact-card{background:var(--card);border:1px solid var(--border);padding:32px;position:relative;overflow:hidden;}
+.contact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);}
+.contact-card-title{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:3px;color:var(--accent);margin-bottom:20px;}
+.contact-row{display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.contact-row:last-child{border:none;}
+.contact-icon{font-size:16px;width:24px;flex-shrink:0;margin-top:1px;}
+.contact-label{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;}
+.contact-val{font-size:13px;color:var(--text);}
+.contact-val a{color:var(--accent);text-decoration:none;}
+.contact-val a:hover{text-decoration:underline;}
+.values-section{background:var(--black);}
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px;}
+.value-card{background:var(--card);border:1px solid var(--border);padding:36px 28px;position:relative;overflow:hidden;transition:border-color .25s,transform .25s;}
+.value-card:hover{border-color:rgba(0,200,255,0.3);transform:translateY(-4px);}
+.value-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);}
+.value-num{font-family:'Oswald',sans-serif;font-size:56px;font-weight:700;color:rgba(0,200,255,0.1);line-height:1;position:absolute;right:20px;top:16px;}
+.value-title{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;color:#fff;margin-bottom:12px;}
+.value-desc{color:var(--muted);font-size:13px;line-height:1.9;}
+.value-tag{display:inline-block;margin-top:16px;background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.2);padding:4px 14px;font-size:11px;letter-spacing:2px;color:var(--accent);font-family:'Space Mono',monospace;}
+.cta-section{background:linear-gradient(135deg,#060a12 0%,#0a1520 50%,#060a12 100%);padding:80px 5%;text-align:center;position:relative;overflow:hidden;}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,100,255,0.12) 0%,transparent 70%);pointer-events:none;}
+.cta-title{font-family:'Oswald',sans-serif;font-size:42px;font-weight:700;margin-bottom:14px;position:relative;}
+.cta-title em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cta-sub{color:var(--muted);margin-bottom:32px;font-size:15px;position:relative;}
+.cta-btns{display:flex;gap:14px;justify-content:center;position:relative;}
+.btn-primary{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:13px 36px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:transform .2s,box-shadow .2s;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,120,255,0.4);}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);padding:12px 28px;font-family:'Noto Sans TC',sans-serif;font-size:14px;cursor:pointer;letter-spacing:1px;transition:border-color .2s,color .2s;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+footer{background:#050810;padding:36px 5%;border-top:1px solid var(--border);}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.footer-copy{font-size:12px;color:var(--muted);}
+.footer-links{display:flex;gap:20px;}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:var(--accent);}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+@media(max-width:900px){
+  .hero-title{font-size:38px;}
+  .dept-grid{grid-template-columns:repeat(3,1fr);}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .info-grid{grid-template-columns:1fr;}
+  .values-grid{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+}
+@media(max-width:600px){
+  .dept-grid{grid-template-columns:repeat(2,1fr);}
+  .cta-btns{flex-direction:column;align-items:center;}
+  .hero-title{font-size:30px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html">
+      <div class="logo-icon"></div>
+      <div>
+        <div class="logo-text">PORPOISE</div>
+        <div class="logo-sub">DISPLAY SYSTEMS</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#products">產品系列</a>
+      <a href="index.html#specs">規格比較</a>
+      <a href="about.html" class="active">關於我們</a>
+      <a href="contact.html">聯絡我們</a>
+    </div>
+    <a href="index.html#products" class="nav-cta">立即選購</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner fade-in">
+    <div class="hero-tag">ABOUT US</div>
+    <h1 class="hero-title">深圳市海豚實業<br><em>有限公司</em></h1>
+    <p class="hero-sub">專注攜帶式顯示器研發與製造，堅持以專業、齊全、快捷的工作優勢贏得廣大客戶信賴</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="intro-section">
+  <div class="section-inner">
+    <div class="section-tag fade-in">COMPANY PROFILE</div>
+    <h2 class="section-title fade-in">公司 <em>簡介</em></h2>
+    <div class="intro-card fade-in">
+      <p class="intro-text">
+        深圳市海豚實業有限公司主要設立：<strong>產品設計部、模具製造部、噴油絲印部、生產製造部、市場銷售部</strong>。擁有一大批從事研發設計、品質管理的專業人才。<br><br>
+        堅持不懈地抓好<strong>「品質、價格、服務」</strong>三大要素，並以「專業、齊全、快捷」的工作優勢不斷贏得廣大客戶的信賴。在產品創新和認證方面，公司一直致力於不斷開發市場競爭力的時尚新品，可根據來樣訂做，承接 <strong>ODM、OEM</strong> 業務。<br><br>
+        「客戶滿意」是我們一貫的追求，不斷創新的海豚實業，願與您攜手，共創雙贏！
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="dept-section">
+  <div class="section-inner">
+    <div class="section-tag fade-in">DEPARTMENTS</div>
+    <h2 class="section-title fade-in">部門 <em>架構</em></h2>
+    <div class="dept-grid fade-in">
+      <div class="dept-item">
+        <span class="dept-icon">🎨</span>
+        <div class="dept-name">產品設計部<span>DESIGN</span></div>
+      </div>
+      <div class="dept-item">
+        <span class="dept-icon">⚙️</span>
+        <div class="dept-name">模具製造部<span>MOLD MFG</span></div>
+      </div>
+      <div class="dept-item">
+        <span class="dept-icon">🖌️</span>
+        <div class="dept-name">噴油絲印部<span>PRINTING</span></div>
+      </div>
+      <div class="dept-item">
+        <span class="dept-icon">🏭</span>
+        <div class="dept-name">生產製造部<span>PRODUCTION</span></div>
+      </div>
+      <div class="dept-item">
+        <span class="dept-icon">📊</span>
+        <div class="dept-name">市場銷售部<span>SALES</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="stats-section">
+  <div class="section-inner">
+    <div class="section-tag fade-in">BY THE NUMBERS</div>
+    <h2 class="section-title fade-in">實力 <em>數據</em></h2>
+    <div class="stats-grid fade-in">
+      <div class="stat-item">
+        <div class="stat-num">2016</div>
+        <div class="stat-label">公司成立年份</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10<sup>+</sup></div>
+        <div class="stat-label">主營產品類別</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">ODM</div>
+        <div class="stat-label">支援來樣訂製</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">OEM</div>
+        <div class="stat-label">支援品牌代工</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="products-section">
+  <div class="section-inner">
+    <div class="section-tag fade-in">PRODUCTS & SERVICES</div>
+    <h2 class="section-title fade-in">主營 <em>產品</em></h2>
+    <div class="product-tags fade-in">
+      <div class="product-tag primary">攜帶式顯示器</div>
+      <div class="product-tag primary">遊戲顯示器</div>
+      <div class="product-tag primary">HDMI 顯示器</div>
+      <div class="product-tag primary">高清顯示器</div>
+      <div class="product-tag">觸控顯示器</div>
+      <div class="product-tag">數位相框</div>
+      <div class="product-tag">電子相冊</div>
+      <div class="product-tag">廣告機</div>
+      <div class="product-tag">一體機</div>
+      <div class="product-tag">顯示器</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="info-section">
+  <div class="section-inner">
+    <div class="section-tag fade-in">COMPANY INFO</div>
+    <h2 class="section-title fade-in">基本 <em>資訊</em></h2>
+    <div class="info-grid fade-in">
+
+      <div class="info-card">
+        <div class="info-card-title">BASIC INFORMATION</div>
+        <div class="info-row">
+          <div class="info-key">公司名稱</div>
+          <div class="info-val">深圳市海豚實業有限公司</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">經營模式</div>
+          <div class="info-val">生產加工</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">成立時間</div>
+          <div class="info-val">2016 年</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">註冊地址</div>
+          <div class="info-val">廣東省 · 深圳市</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">經營範圍</div>
+          <div class="info-val">攜帶式顯示器、數位相框、廣告機、HDMI 顯示器、電子相冊、觸控顯示器等</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">ODM / OEM</div>
+          <div class="info-val">支援來樣訂製，承接 ODM、OEM 合作</div>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-title">CONTACT</div>
+        <div class="contact-row">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">公司地址</div>
+            <div class="contact-val">廣東省深圳市</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">🌐</div>
+          <div>
+            <div class="contact-label">官方網站</div>
+            <div class="contact-val"><a href="index.html">www.porpoise.com</a></div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-label">客服信箱</div>
+            <div class="contact-val"><a href="mailto:service@porpoise.com">service@porpoise.com</a></div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">💬</div>
+          <div>
+            <div class="contact-label">線上諮詢</div>
+            <div class="contact-val"><a href="contact.html">前往聯絡商家 →</a></div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">🕐</div>
+          <div>
+            <div class="contact-label">服務時間</div>
+            <div class="contact-val">週一至週五 09:00 – 18:00</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="values-section">
+  <div class="section-inner">
+    <div class="section-tag fade-in">OUR VALUES</div>
+    <h2 class="section-title fade-in">核心 <em>理念</em></h2>
+    <div class="values-grid fade-in">
+      <div class="value-card">
+        <div class="value-num">01</div>
+        <h3 class="value-title">品質為本</h3>
+        <p class="value-desc">堅持嚴格的品質管理體系，從原物料採購到成品出貨，每一道工序均經過嚴格把關，確保每件產品達到出貨標準。</p>
+        <span class="value-tag">QUALITY FIRST</span>
+      </div>
+      <div class="value-card">
+        <div class="value-num">02</div>
+        <h3 class="value-title">價格透明</h3>
+        <p class="value-desc">工廠直營，省去中間環節，以合理的出廠價格為客戶提供最具競爭力的產品，降低採購成本，共同創造利潤空間。</p>
+        <span class="value-tag">COMPETITIVE PRICE</span>
+      </div>
+      <div class="value-card">
+        <div class="value-num">03</div>
+        <h3 class="value-title">服務至上</h3>
+        <p class="value-desc">「客戶滿意」是我們一貫的追求。提供售前諮詢、ODM 訂製到售後跟進的全流程服務，與客戶建立長期穩固的合作關係。</p>
+        <span class="value-tag">SERVICE EXCELLENCE</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="cta-title fade-in">攜手合作<br><em>共創雙贏</em></div>
+  <p class="cta-sub fade-in">歡迎來樣訂製，承接 ODM / OEM 業務洽談</p>
+  <div class="cta-btns fade-in">
+    <a class="btn-primary" href="contact.html">立即聯絡我們</a>
+    <a class="btn-outline" href="index.html#products">查看產品系列</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="logo" style="margin-bottom:6px;">
+        <div class="logo-icon" style="width:24px;height:24px;"></div>
+        <div class="logo-text" style="font-size:16px;">PORPOISE</div>
+      </div>
+      <div class="footer-copy">© 2025 PORPOISE Display Systems · 深圳市海豚實業有限公司</div>
+    </div>
+    <div class="footer-links">
+      <a href="index.html">產品介紹</a>
+      <a href="index.html#specs">規格下載</a>
+      <a href="about.html">關於我們</a>
+      <a href="contact.html">聯絡我們</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      const children = e.target.querySelectorAll('.dept-item,.stat-item,.value-card,.product-tag,.info-card,.contact-card');
+      children.forEach((c, i) => {
+        c.style.opacity = '0';
+        c.style.transform = 'translateY(16px)';
+        c.style.transition = `opacity .5s ${i * 0.07}s ease, transform .5s ${i * 0.07}s ease`;
+        setTimeout(() => { c.style.opacity = '1'; c.style.transform = 'none'; }, 80 + i * 70);
+      });
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>購物車 · PORPOISE</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Oswald:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#080c10;--dark:#0e1318;--card:#131a22;--border:rgba(255,255,255,0.07);
+  --accent:#00c8ff;--accent2:#0077ff;--gold:#f0b429;--text:#e8edf2;--muted:#6b7a8d;
+  --green:#00e676;--red:#ff4444;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:15px;line-height:1.7;min-height:100vh;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,12,16,0.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 5%;}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:62px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
+.logo-text{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:3px;color:#fff;}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
+.nav-back:hover{color:var(--accent);}
+
+/* LAYOUT */
+.page{max-width:1100px;margin:0 auto;padding:48px 5% 80px;}
+.page-tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--accent);margin-bottom:10px;}
+.page-title{font-family:'Oswald',sans-serif;font-size:36px;font-weight:600;margin-bottom:40px;}
+.page-title em{font-style:normal;color:var(--accent);}
+
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:32px;border:1px solid var(--border);overflow:hidden;}
+.step{flex:1;padding:14px 20px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;color:var(--muted);display:flex;align-items:center;gap:8px;border-right:1px solid var(--border);}
+.step:last-child{border-right:none;}
+.step.active{color:var(--accent);background:rgba(0,200,255,0.05);}
+.step.done{color:var(--green);}
+.step-num{width:22px;height:22px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+
+/* PANEL */
+.panel{background:var(--dark);border:1px solid var(--border);position:relative;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);}
+.panel-head{padding:20px 24px;border-bottom:1px solid var(--border);}
+.panel-title{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:2px;}
+.panel-body{padding:24px;}
+
+/* CART ITEMS */
+.cart-item{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cart-item:last-child{border:none;}
+.ci-img{width:56px;height:44px;object-fit:contain;background:var(--card);padding:4px;}
+.ci-name{font-size:14px;font-weight:500;margin-bottom:2px;}
+.ci-model{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.ci-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.ci-price{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);}
+.ci-qty{display:flex;align-items:center;gap:8px;}
+.qty-btn{width:24px;height:24px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s;}
+.qty-btn:hover{border-color:var(--accent);}
+.qty-num{font-family:'Space Mono',monospace;font-size:13px;min-width:20px;text-align:center;}
+.ci-remove{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;transition:color .15s;}
+.ci-remove:hover{color:var(--red);}
+.cart-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
+.cart-empty a{color:var(--accent);text-decoration:none;}
+
+/* FORM */
+.form-section{margin-bottom:24px;}
+.section-label{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:3px;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row.col1{grid-template-columns:1fr;}
+.form-group{margin-bottom:12px;}
+.form-label{display:block;font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+.form-input,.form-select{width:100%;background:var(--black);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Noto Sans TC',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-input.error{border-color:var(--red);}
+.form-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* PAYMENT OPTIONS */
+.pay-options{display:flex;flex-direction:column;gap:8px;}
+.pay-option{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s,background .2s;}
+.pay-option:hover{border-color:rgba(0,200,255,0.4);}
+.pay-option.selected{border-color:var(--accent);background:rgba(0,200,255,0.05);}
+.pay-option input[type=radio]{accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;}
+.pay-option-label{flex:1;}
+.pay-option-name{font-size:14px;font-weight:500;}
+.pay-option-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+.pay-icon{font-size:20px;width:28px;text-align:center;}
+
+/* SUMMARY */
+.summary-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.summary-row:last-of-type{border:none;}
+.summary-row .key{color:var(--muted);}
+.summary-total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.summary-total .key{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);}
+.summary-total .val{font-family:'Space Mono',monospace;font-size:22px;color:var(--gold);}
+
+/* CHECKOUT BUTTON */
+.checkout-btn{width:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:14px;font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:16px;transition:opacity .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.checkout-btn:hover{opacity:.85;transform:translateY(-1px);}
+.checkout-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.checkout-btn svg{width:16px;height:16px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--accent);padding:10px 24px;font-size:13px;z-index:999;transition:transform .3s;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ECPAY FORM */
+#ecpay-form{display:none;}
+
+@media(max-width:800px){
+  .cart-layout{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html">
+      <div class="logo-icon"></div>
+      <div class="logo-text">PORPOISE</div>
+    </a>
+    <a class="nav-back" href="index.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      繼續購物
+    </a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-tag">SHOPPING CART</div>
+  <h1 class="page-title">購物 <em>結帳</em></h1>
+
+  <!-- 步驟提示 -->
+  <div class="steps" id="steps">
+    <div class="step active" id="step1"><span class="step-num">1</span>確認購物車</div>
+    <div class="step" id="step2"><span class="step-num">2</span>填寫資料</div>
+    <div class="step" id="step3"><span class="step-num">3</span>前往付款</div>
+  </div>
+
+  <div class="cart-layout">
+    <!-- 左欄：購物車 + 表單 -->
+    <div>
+      <!-- 購物車內容 -->
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="panel-head"><div class="panel-title">購物車內容</div></div>
+        <div class="panel-body" id="cart-body">
+          <div class="cart-empty">購物車是空的，<a href="index.html">前往選購</a></div>
+        </div>
+      </div>
+
+      <!-- 填寫資料 -->
+      <div class="panel" id="checkout-form-panel" style="display:none;">
+        <div class="panel-head"><div class="panel-title">收件資訊</div></div>
+        <div class="panel-body">
+          <div class="form-section">
+            <div class="section-label">基本資料</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">姓名 *</label>
+                <input class="form-input" id="f-name" placeholder="王小明">
+              </div>
+              <div class="form-group">
+                <label class="form-label">手機 *</label>
+                <input class="form-input" id="f-phone" placeholder="0912345678" maxlength="10">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input class="form-input" id="f-email" placeholder="example@email.com" type="email">
+              <div class="form-hint">訂單確認信將寄送至此信箱</div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-label">收件地址</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">縣市 *</label>
+                <select class="form-select" id="f-city" onchange="updateDistrict()">
+                  <option value="">請選擇縣市</option>
+                  <option>台北市</option><option>新北市</option><option>桃園市</option>
+                  <option>台中市</option><option>台南市</option><option>高雄市</option>
+                  <option>基隆市</option><option>新竹市</option><option>新竹縣</option>
+                  <option>苗栗縣</option><option>彰化縣</option><option>南投縣</option>
+                  <option>雲林縣</option><option>嘉義市</option><option>嘉義縣</option>
+                  <option>屏東縣</option><option>宜蘭縣</option><option>花蓮縣</option>
+                  <option>台東縣</option><option>澎湖縣</option><option>金門縣</option>
+                  <option>連江縣</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">區域 *</label>
+                <input class="form-input" id="f-district" placeholder="中正區">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">詳細地址 *</label>
+              <input class="form-input" id="f-addr" placeholder="忠孝東路一段 1 號">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-label">付款方式</div>
+            <div class="pay-options" id="pay-options">
+              <label class="pay-option selected" onclick="selectPay(this,'Credit')">
+                <input type="radio" name="pay" value="Credit" checked>
+                <span class="pay-icon">💳</span>
+                <div class="pay-option-label">
+                  <div class="pay-option-name">信用卡</div>
+                  <div class="pay-option-desc">Visa / Mastercard / JCB，支援分期</div>
+                </div>
+              </label>
+              <label class="pay-option" onclick="selectPay(this,'ATM')">
+                <input type="radio" name="pay" value="ATM">
+                <span class="pay-icon">🏦</span>
+                <div class="pay-option-label">
+                  <div class="pay-option-name">ATM 轉帳</div>
+                  <div class="pay-option-desc">銀行轉帳，3 天內付款</div>
+                </div>
+              </label>
+              <label class="pay-option" onclick="selectPay(this,'CVS')">
+                <input type="radio" name="pay" value="CVS">
+                <span class="pay-icon">🏪</span>
+                <div class="pay-option-label">
+                  <div class="pay-option-name">超商代碼</div>
+                  <div class="pay-option-desc">7-11 / 全家，20 分鐘內完成繳費</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右欄：訂單摘要 -->
+    <div>
+      <div class="panel" style="position:sticky;top:80px;">
+        <div class="panel-head"><div class="panel-title">訂單摘要</div></div>
+        <div class="panel-body">
+          <div id="summary-items"></div>
+          <div class="summary-total">
+            <span class="key">合計</span>
+            <span class="val" id="summary-total">NT$ 0</span>
+          </div>
+
+          <!-- Step 1 按鈕：確認購物車 → 顯示表單 -->
+          <button class="checkout-btn" id="btn-to-form" onclick="toForm()">
+            填寫收件資料 →
+          </button>
+
+          <!-- Step 2 按鈕：送出訂單 → 綠界 -->
+          <button class="checkout-btn" id="btn-submit" style="display:none;" onclick="submitOrder()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            確認並前往付款
+          </button>
+
+          <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.7;">
+            付款由綠界科技處理，資料加密傳輸<br>訂單成立後將寄送確認信至您的信箱
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<form id="ecpay-form" method="POST" target="_self"></form>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAeiMwEU4UPuklw9d0AkHiG235pinQjsGo",
+  authDomain: "monitor-c671b.firebaseapp.com",
+  projectId: "monitor-c671b",
+  storageBucket: "monitor-c671b.firebasestorage.app",
+  messagingSenderId: "589974228759",
+  appId: "1:589974228759:web:64edbf0fd4160bb603b152",
+  measurementId: "G-8TD944Y15G"
+};
+const app = initializeApp(firebaseConfig);
+const fns = getFunctions(app, "us-central1");
+const createOrderFn = httpsCallable(fns, 'createOrder');
+
+// ── 購物車狀態 ────────────────────────────────────────
+let cart = [];
+let paymentType = 'Credit';
+
+// ── 從 localStorage 讀取購物車 ────────────────────────
+function loadCart() {
+  try { cart = JSON.parse(localStorage.getItem('porpoise_cart') || '[]'); }
+  catch(e) { cart = []; }
+  renderCart();
+}
+
+function saveCart() {
+  localStorage.setItem('porpoise_cart', JSON.stringify(cart));
+}
+
+// ── 渲染購物車 ────────────────────────────────────────
+function renderCart() {
+  const body = document.getElementById('cart-body');
+  if (!cart.length) {
+    body.innerHTML = `<div class="cart-empty">購物車是空的，<a href="index.html">前往選購</a></div>`;
+    document.getElementById('btn-to-form').disabled = true;
+    document.getElementById('checkout-form-panel').style.display = 'none';
+    document.getElementById('btn-submit').style.display = 'none';
+    document.getElementById('btn-to-form').style.display = '';
+    setStep(1);
+  } else {
+    body.innerHTML = cart.map((item, i) => `
+      <div class="cart-item">
+        <img class="ci-img" src="${esc(item.image||'')}" alt="${esc(item.name)}"
+          onerror="this.style.background='var(--card)';this.src=''">
+        <div>
+          <div class="ci-name">${esc(item.name)}</div>
+          <div class="ci-model">${esc(item.model||'')}</div>
+        </div>
+        <div class="ci-right">
+          <div class="ci-price">NT$ ${(item.price * item.qty).toLocaleString()}</div>
+          <div class="ci-qty">
+            <button class="qty-btn" onclick="changeQty(${i}, -1)">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${i}, +1)">＋</button>
+          </div>
+          <button class="ci-remove" onclick="removeItem(${i})" title="移除">✕</button>
+        </div>
+      </div>`).join('');
+    document.getElementById('btn-to-form').disabled = false;
+  }
+  renderSummary();
+}
+
+function renderSummary() {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('summary-items').innerHTML = cart.map(i => `
+    <div class="summary-row">
+      <span class="key">${esc(i.name)} × ${i.qty}</span>
+      <span>NT$ ${(i.price * i.qty).toLocaleString()}</span>
+    </div>`).join('');
+  document.getElementById('summary-total').textContent = 'NT$ ' + total.toLocaleString();
+}
+
+// ── 數量操作 ──────────────────────────────────────────
+window.changeQty = function(i, delta) {
+  cart[i].qty = Math.max(1, (cart[i].qty || 1) + delta);
+  saveCart(); renderCart();
+};
+window.removeItem = function(i) {
+  cart.splice(i, 1);
+  saveCart(); renderCart();
+  showToast('已從購物車移除');
+};
+
+// ── 付款方式 ──────────────────────────────────────────
+window.selectPay = function(label, val) {
+  document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('selected'));
+  label.classList.add('selected');
+  paymentType = val;
+};
+
+// ── Step1 → Step2：顯示表單 ───────────────────────────
+window.toForm = function() {
+  if (!cart.length) return;
+  document.getElementById('checkout-form-panel').style.display = 'block';
+  document.getElementById('btn-to-form').style.display = 'none';
+  document.getElementById('btn-submit').style.display = '';
+  setStep(2);
+  document.getElementById('checkout-form-panel').scrollIntoView({ behavior:'smooth', block:'start' });
+};
+
+// ── 送出訂單 ──────────────────────────────────────────
+window.submitOrder = async function() {
+  // 驗證欄位
+  const name    = document.getElementById('f-name').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const city    = document.getElementById('f-city').value;
+  const district= document.getElementById('f-district').value.trim();
+  const addr    = document.getElementById('f-addr').value.trim();
+
+  let valid = true;
+  const fields = [
+    ['f-name', name, '請填寫姓名'],
+    ['f-phone', phone && /^09\d{8}$/.test(phone), '請輸入正確手機號碼（09xxxxxxxx）'],
+    ['f-email', email && email.includes('@'), '請輸入正確 Email'],
+    ['f-city', city, '請選擇縣市'],
+    ['f-district', district, '請填寫區域'],
+    ['f-addr', addr, '請填寫詳細地址'],
+  ];
+  for (const [id, cond, msg] of fields) {
+    const el = document.getElementById(id);
+    if (!cond) {
+      el.classList.add('error');
+      if (valid) { el.focus(); showToast(msg); }
+      valid = false;
+    } else {
+      el.classList.remove('error');
+    }
+  }
+  if (!valid) return;
+  if (!cart.length) { showToast('購物車是空的'); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite"></span> 建立訂單中…`;
+
+  const buyer = { name, phone, email, address: `${city}${district}${addr}` };
+  const items = cart.map(i => ({
+    productId: i.productId || i.name,
+    name: i.name,
+    qty: i.qty,
+    price: i.price,
+  }));
+
+  try {
+    setStep(3);
+    const res = await createOrderFn({ items, buyer, paymentType });
+    const { formUrl, params } = res.data;
+
+    // 清空購物車
+    cart = [];
+    saveCart();
+
+    // 跳轉綠界
+    submitEcpayForm(formUrl, params);
+  } catch (e) {
+    showToast('建立訂單失敗：' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = '確認並前往付款';
+    setStep(2);
+  }
+};
+
+function submitEcpayForm(url, params) {
+  const form = document.getElementById('ecpay-form');
+  form.action = url;
+  form.innerHTML = '';
+  Object.entries(params).forEach(([k, v]) => {
+    const inp = document.createElement('input');
+    inp.type='hidden'; inp.name=k; inp.value=v;
+    form.appendChild(inp);
+  });
+  form.submit();
+}
+
+// ── 步驟控制 ──────────────────────────────────────────
+window.setStep = function(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step'+i);
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+    if (i < n) el.querySelector('.step-num').textContent = '✓';
+    else el.querySelector('.step-num').textContent = String(i);
+  });
+};
+
+// ── Toast ─────────────────────────────────────────────
+window.showToast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+};
+
+// ── 工具 ──────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── 縣市選擇輔助（可擴充） ────────────────────────────
+window.updateDistrict = function() {
+  // 可日後接台灣行政區 API 或改用資料表
+};
+
+// 初始化
+loadCart();
+</script>
+</body>
+</html>

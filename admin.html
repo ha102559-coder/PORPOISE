@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORPOISE 後台管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Oswald:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--black:#080c10;--dark:#0e1318;--card:#131a22;--border:rgba(255,255,255,0.08);--accent:#00c8ff;--accent2:#0077ff;--gold:#f0b429;--text:#e8edf2;--muted:#6b7a8d;--green:#00e676;--red:#ff4444;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--black);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;line-height:1.6;}
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(0,120,255,0.1) 0%,transparent 70%),var(--black);}
+.login-box{background:var(--dark);border:1px solid var(--border);padding:48px 40px;width:380px;text-align:center;}
+.login-logo{font-family:'Oswald',sans-serif;font-size:28px;letter-spacing:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.login-sub{font-size:11px;letter-spacing:3px;color:var(--muted);margin-bottom:36px;}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:13px;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:14px;cursor:pointer;transition:border-color .2s;}
+.google-btn:hover{border-color:var(--accent);}
+.google-btn svg{width:20px;height:20px;flex-shrink:0;}
+/* ADMIN LAYOUT */
+#admin-screen{display:none;min-height:100vh;}
+.admin-nav{background:var(--dark);border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.admin-logo{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:3px;color:var(--accent);}
+.admin-user{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);}
+.signout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 14px;cursor:pointer;font-size:12px;font-family:'Noto Sans TC',sans-serif;transition:border-color .2s;}
+.signout-btn:hover{border-color:var(--accent);color:var(--accent);}
+.admin-body{display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 58px);}
+.admin-sidebar{background:var(--dark);border-right:1px solid var(--border);padding:20px 0;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 22px;cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s;border-left:2px solid transparent;}
+.sidebar-item:hover{color:var(--text);background:rgba(255,255,255,0.03);}
+.sidebar-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(0,200,255,0.06);}
+.admin-main{padding:28px;}
+/* TABS */
+.admin-tab{display:none;}
+.admin-tab.active{display:block;}
+/* SECTION HEADER */
+.admin-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.admin-title{font-family:'Oswald',sans-serif;font-size:22px;letter-spacing:2px;}
+.btn-add{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:9px 22px;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+/* TABLE */
+.admin-table{width:100%;border-collapse:collapse;}
+.admin-table th{background:var(--card);padding:10px 14px;text-align:left;font-size:11px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;}
+.admin-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.admin-table tr:hover td{background:rgba(255,255,255,0.02);}
+.tbl-img{width:56px;height:40px;object-fit:contain;background:var(--card);padding:4px;}
+.tbl-badge{padding:2px 10px;font-size:10px;font-family:'Space Mono',monospace;letter-spacing:1px;}
+.badge-pending{background:rgba(240,180,41,0.15);color:var(--gold);border:1px solid rgba(240,180,41,0.3);}
+.badge-paid{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.badge-shipped{background:rgba(0,200,255,0.1);color:var(--accent);border:1px solid rgba(0,200,255,0.3);}
+.badge-delivered{background:rgba(0,200,255,0.15);color:var(--accent);border:1px solid var(--accent);}
+.badge-failed{background:rgba(255,68,68,0.1);color:var(--red);border:1px solid rgba(255,68,68,0.3);}
+.tbl-action{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;cursor:pointer;font-size:12px;font-family:'Noto Sans TC',sans-serif;transition:all .15s;margin-right:6px;}
+.tbl-action:hover{border-color:var(--accent);color:var(--accent);}
+.tbl-action.danger:hover{border-color:var(--red);color:var(--red);}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal-panel{background:var(--dark);border:1px solid var(--border);width:100%;max-width:680px;max-height:90vh;overflow-y:auto;}
+.modal-hd{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-hd h3{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:2px;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:24px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+.form-input,.form-textarea,.form-select{width:100%;background:var(--black);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Noto Sans TC',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--accent);}
+.form-textarea{min-height:90px;resize:vertical;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+/* Media upload area */
+.media-upload-area{border:1px dashed var(--border);padding:20px;margin-bottom:8px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.media-upload-area:hover{border-color:var(--accent);}
+.media-preview-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.media-preview-item{position:relative;width:80px;height:60px;}
+.media-preview-item img,.media-preview-item video{width:100%;height:100%;object-fit:contain;background:var(--black);}
+.media-preview-remove{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:12px;}
+.btn-save{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:10px 28px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--muted);padding:10px 22px;font-family:'Noto Sans TC',sans-serif;font-size:14px;cursor:pointer;}
+.btn-cancel:hover{border-color:var(--text);color:var(--text);}
+/* Logistics modal */
+.logistics-timeline{padding:0 0 0 20px;border-left:1px solid var(--border);margin-bottom:20px;}
+.lt-item{padding:0 0 16px 20px;position:relative;}
+.lt-item::before{content:'';position:absolute;left:-5px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--dark);}
+.lt-time{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;}
+.lt-status{font-size:13px;font-weight:500;}
+.lt-note{font-size:12px;color:var(--muted);}
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border);padding:20px;border-top:2px solid var(--accent);}
+.stat-num{font-family:'Oswald',sans-serif;font-size:32px;color:var(--accent);margin-bottom:4px;}
+.stat-lbl{font-size:11px;letter-spacing:2px;color:var(--muted);}
+/* Loading */
+.loading-row td{text-align:center;padding:40px;color:var(--muted);}
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--accent);padding:10px 24px;font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">PORPOISE</div>
+    <div class="login-sub">ADMIN PANEL</div>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      使用 Google 帳號登入
+    </button>
+    <p id="login-err" style="margin-top:16px;font-size:12px;color:#ff4444;"></p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen">
+  <nav class="admin-nav">
+    <div class="admin-logo">PORPOISE ADMIN</div>
+    <div class="admin-user">
+      <span id="admin-email"></span>
+      <button class="signout-btn" onclick="signOut()">登出</button>
+    </div>
+  </nav>
+  <div class="admin-body">
+    <div class="admin-sidebar">
+      <div class="sidebar-item active" onclick="switchTab('dashboard',this)">📊 總覽</div>
+      <div class="sidebar-item" onclick="switchTab('products',this)">📦 商品管理</div>
+      <div class="sidebar-item" onclick="switchTab('orders',this)">🧾 訂單管理</div>
+      <div class="sidebar-item" onclick="switchTab('enquiries',this)">💬 客服訊息 <span id="enq-badge" style="display:none;background:var(--accent);color:#000;font-size:10px;padding:1px 6px;border-radius:999px;margin-left:4px;"></span></div>
+      <div class="sidebar-item" onclick="switchTab('enquiries',this)">💬 客服訊息 <span id="enq-badge" style="display:none;background:var(--accent);color:#000;font-size:10px;padding:1px 6px;border-radius:999px;margin-left:4px;"></span></div>
+    </div>
+    <div class="admin-main">
+
+      <!-- DASHBOARD -->
+      <div class="admin-tab active" id="tab-dashboard">
+        <div class="admin-section-hd"><div class="admin-title">總覽</div></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="stat-orders">—</div><div class="stat-lbl">總訂單</div></div>
+          <div class="stat-card" style="border-top-color:var(--green);"><div class="stat-num" style="color:var(--green);" id="stat-paid">—</div><div class="stat-lbl">已付款</div></div>
+          <div class="stat-card" style="border-top-color:var(--gold);"><div class="stat-num" style="color:var(--gold);" id="stat-revenue">—</div><div class="stat-lbl">總收入 (NT$)</div></div>
+          <div class="stat-card" style="border-top-color:#a855f7;"><div class="stat-num" style="color:#a855f7;" id="stat-products">—</div><div class="stat-lbl">上架商品</div></div>
+        </div>
+        <p style="color:var(--muted);font-size:13px;">最近 5 筆訂單</p>
+        <table class="admin-table" style="margin-top:12px;">
+          <thead><tr><th>訂單編號</th><th>買家</th><th>金額</th><th>狀態</th><th>時間</th></tr></thead>
+          <tbody id="recent-orders-body"><tr class="loading-row"><td colspan="5">載入中…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="admin-tab" id="tab-products">
+        <div class="admin-section-hd">
+          <div class="admin-title">商品管理</div>
+          <button class="btn-add" onclick="openProductModal()">+ 新增商品</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>圖片</th><th>商品名稱</th><th>型號</th><th>售價</th><th>狀態</th><th>操作</th></tr></thead>
+          <tbody id="products-body"><tr class="loading-row"><td colspan="6">載入中…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="admin-tab" id="tab-orders">
+        <div class="admin-section-hd">
+          <div class="admin-title">訂單管理</div>
+          <select class="form-select" style="width:160px;" onchange="filterOrders(this.value)">
+            <option value="">全部狀態</option>
+            <option value="pending">待付款</option>
+            <option value="paid">已付款</option>
+            <option value="shipped">已出貨</option>
+            <option value="delivered">已送達</option>
+            <option value="failed">付款失敗</option>
+          </select>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>訂單編號</th><th>買家</th><th>金額</th><th>付款</th><th>狀態</th><th>時間</th><th>操作</th></tr></thead>
+          <tbody id="orders-body"><tr class="loading-row"><td colspan="7">載入中…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- ENQUIRIES -->
+      <div class="admin-tab" id="tab-enquiries">
+        <div class="admin-section-hd"><div class="admin-title">客服訊息</div></div>
+        <div id="enquiries-list"><p style="color:var(--muted);text-align:center;padding:40px;">載入中…</p></div>
+      </div>
+
+      <!-- ENQUIRIES -->
+      <div class="admin-tab" id="tab-enquiries">
+        <div class="admin-section-hd"><div class="admin-title">客服訊息</div></div>
+        <div id="enquiries-list"><p style="color:var(--muted);text-align:center;padding:40px;">載入中…</p></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-bg" id="product-modal-bg">
+  <div class="modal-panel">
+    <div class="modal-hd">
+      <h3 id="product-modal-title">新增商品</h3>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pm-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">商品名稱 *</label><input class="form-input" id="pm-name" placeholder="15.6吋攜帶式顯示器"></div>
+        <div class="form-group"><label class="form-label">型號</label><input class="form-input" id="pm-model" placeholder="PRP-156-IPS"></div>
+      </div>
+      <div class="form-row3">
+        <div class="form-group"><label class="form-label">售價 (NT$) *</label><input class="form-input" id="pm-price" type="number" placeholder="4990"></div>
+        <div class="form-group"><label class="form-label">原價 (劃線)</label><input class="form-input" id="pm-orig-price" type="number" placeholder="5990"></div>
+        <div class="form-group"><label class="form-label">排序</label><input class="form-input" id="pm-sort" type="number" placeholder="1"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">尺寸顯示</label><input class="form-input" id="pm-size" placeholder="15.6"></div>
+        <div class="form-group"><label class="form-label">尺寸單位</label><input class="form-input" id="pm-size-unit" placeholder='"'></div>
+      </div>
+      <div class="form-group"><label class="form-label">規格標籤（逗號分隔，加 * 前綴=藍色高亮）</label><input class="form-input" id="pm-specs" placeholder="IPS,*1920×1080,60Hz,Type-C,HDMI×2"></div>
+      <div class="form-group"><label class="form-label">徽章文字（選填，如 BEST SELLER）</label><input class="form-input" id="pm-badge" placeholder="HOT"></div>
+      <div class="form-group"><label class="form-label">商品說明</label><textarea class="form-textarea" id="pm-desc" placeholder="商品詳細說明…"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">圖片（可多張）</label>
+        <div class="media-upload-area" onclick="document.getElementById('img-upload').click()">
+          點擊上傳圖片（JPG/PNG/WebP）
+        </div>
+        <input type="file" id="img-upload" accept="image/*" multiple style="display:none" onchange="handleImgUpload(this)">
+        <div class="media-preview-list" id="img-previews"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">影片（可多個）</label>
+        <div class="media-upload-area" onclick="document.getElementById('vid-upload').click()">
+          點擊上傳影片（MP4/WebM）
+        </div>
+        <input type="file" id="vid-upload" accept="video/*" multiple style="display:none" onchange="handleVidUpload(this)">
+        <div class="media-preview-list" id="vid-previews"></div>
+      </div>
+      <div class="form-group"><label class="form-label"><input type="checkbox" id="pm-featured" style="margin-right:8px;">精選商品（加藍色邊框）</label></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeProductModal()">取消</button>
+      <button class="btn-save" id="pm-save-btn" onclick="saveProduct()">儲存商品</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGISTICS MODAL -->
+<div class="modal-bg" id="logistics-modal-bg">
+  <div class="modal-panel">
+    <div class="modal-hd">
+      <h3>更新物流動態</h3>
+      <button class="modal-close" onclick="closeLogisticsModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lm-order-no">
+      <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">訂單編號：<span id="lm-order-no-display" style="color:var(--accent);"></span></p>
+      <div class="logistics-timeline" id="lm-timeline"></div>
+      <div class="form-group"><label class="form-label">物流狀態 *</label>
+        <select class="form-select" id="lm-status">
+          <option>商品備貨中</option>
+          <option>已交付物流</option>
+          <option>物流配送中</option>
+          <option>已送達取貨點</option>
+          <option>已送達</option>
+          <option>自訂…</option>
+        </select>
+      </div>
+      <div class="form-group" id="lm-custom-group" style="display:none;"><label class="form-label">自訂狀態文字</label><input class="form-input" id="lm-custom-status" placeholder="輸入物流狀態"></div>
+      <div class="form-group"><label class="form-label">備註（選填，如物流單號）</label><input class="form-input" id="lm-note" placeholder="例：黑貓 1234567890"></div>
+      <div class="form-group"><label class="form-label">同時更新訂單狀態</label>
+        <select class="form-select" id="lm-order-status">
+          <option value="">不更改</option>
+          <option value="paid">已付款</option>
+          <option value="shipped">已出貨</option>
+          <option value="delivered">已送達</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeLogisticsModal()">取消</button>
+      <button class="btn-save" onclick="submitLogistics()">更新物流</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="admin-toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, limit, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+// functions removed — using Firestore directly
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAeiMwEU4UPuklw9d0AkHiG235pinQjsGo",
+  authDomain: "monitor-c671b.firebaseapp.com",
+  projectId: "monitor-c671b",
+  storageBucket: "monitor-c671b.firebasestorage.app",
+  messagingSenderId: "589974228759",
+  appId: "1:589974228759:web:64edbf0fd4160bb603b152",
+  measurementId: "G-8TD944Y15G"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const ADMIN_EMAIL = "enzdwllg@gmail.com";
+let allOrders = [], allProducts = [];
+let pendingImages = [], pendingVideos = [];
+let editingImageUrls = [], editingVideoUrls = [];
+
+// ── AUTH ──────────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+  if (user && user.email === ADMIN_EMAIL) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    document.getElementById('admin-email').textContent = user.email;
+    loadDashboard();
+    loadEnquiries();
+  } else if (user) {
+    fbSignOut(auth);
+    document.getElementById('login-err').textContent = '此帳號無管理員權限';
+  }
+});
+
+window.signInWithGoogle = async function() {
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (e) {
+    document.getElementById('login-err').textContent = e.message;
+  }
+};
+window.signOut = () => fbSignOut(auth).then(() => location.reload());
+
+// ── TAB ───────────────────────────────────────────────
+window.switchTab = function(name, el) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'products')   loadProducts();
+  if (name === 'orders')     loadOrders();
+  if (name === 'enquiries')  loadEnquiries();
+};
+
+// ── DASHBOARD ─────────────────────────────────────────
+async function loadDashboard() {
+  const [ordSnap, proSnap] = await Promise.all([
+    getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc'))),
+    getDocs(collection(db, 'products'))
+  ]);
+  allOrders = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  allProducts = proSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const paid = allOrders.filter(o => ['paid','shipped','delivered'].includes(o.status));
+  const revenue = paid.reduce((s, o) => s + (o.totalAmount || 0), 0);
+
+  document.getElementById('stat-orders').textContent = allOrders.length;
+  document.getElementById('stat-paid').textContent = paid.length;
+  document.getElementById('stat-revenue').textContent = revenue.toLocaleString();
+  document.getElementById('stat-products').textContent = allProducts.length;
+
+  const recent = allOrders.slice(0, 5);
+  document.getElementById('recent-orders-body').innerHTML = recent.length
+    ? recent.map(o => `<tr>
+        <td style="font-family:'Space Mono',monospace;font-size:11px;">${o.id}</td>
+        <td>${o.buyer?.name || '—'}</td>
+        <td style="color:var(--gold);">NT$ ${(o.totalAmount||0).toLocaleString()}</td>
+        <td><span class="tbl-badge badge-${o.status}">${statusLabel(o.status)}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${o.createdAt?.toDate?.()?.toLocaleString('zh-TW') || '—'}</td>
+      </tr>`).join('')
+    : '<tr class="loading-row"><td colspan="5">尚無訂單</td></tr>';
+}
+
+// ── PRODUCTS ──────────────────────────────────────────
+async function loadProducts() {
+  const snap = await getDocs(query(collection(db, 'products'), orderBy('sortOrder')));
+  allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderProductsTable();
+}
+
+function renderProductsTable() {
+  document.getElementById('products-body').innerHTML = allProducts.length
+    ? allProducts.map(p => `<tr>
+        <td>${p.images?.[0] ? `<img class="tbl-img" src="${p.images[0]}">` : '—'}</td>
+        <td>${p.name}</td>
+        <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);">${p.model||'—'}</td>
+        <td style="color:var(--gold);">NT$ ${(p.price||0).toLocaleString()}</td>
+        <td><span class="tbl-badge ${p.active!==false?'badge-paid':'badge-failed'}">${p.active!==false?'上架中':'已下架'}</span></td>
+        <td>
+          <button class="tbl-action" onclick="openProductModal('${p.id}')">編輯</button>
+          <button class="tbl-action" onclick="toggleProduct('${p.id}',${p.active!==false})">${p.active!==false?'下架':'上架'}</button>
+          <button class="tbl-action danger" onclick="deleteProduct('${p.id}')">刪除</button>
+        </td>
+      </tr>`).join('')
+    : '<tr class="loading-row"><td colspan="6">尚無商品</td></tr>';
+}
+
+window.openProductModal = function(productId) {
+  pendingImages = []; pendingVideos = [];
+  editingImageUrls = []; editingVideoUrls = [];
+  document.getElementById('img-previews').innerHTML = '';
+  document.getElementById('vid-previews').innerHTML = '';
+
+  if (productId) {
+    const p = allProducts.find(x => x.id === productId);
+    if (!p) return;
+    document.getElementById('product-modal-title').textContent = '編輯商品';
+    document.getElementById('pm-id').value = p.id;
+    document.getElementById('pm-name').value = p.name || '';
+    document.getElementById('pm-model').value = p.model || '';
+    document.getElementById('pm-price').value = p.price || '';
+    document.getElementById('pm-orig-price').value = p.origPrice || '';
+    document.getElementById('pm-sort').value = p.sortOrder || '';
+    document.getElementById('pm-size').value = p.size || '';
+    document.getElementById('pm-size-unit').value = p.sizeUnit || '';
+    document.getElementById('pm-desc').value = p.description || '';
+    document.getElementById('pm-badge').value = p.badge || '';
+    document.getElementById('pm-featured').checked = p.featured || false;
+    document.getElementById('pm-specs').value = (p.specs||[]).map(s => s.highlight ? `*${s.text}` : s.text).join(',');
+    // existing media
+    editingImageUrls = [...(p.images || [])];
+    editingVideoUrls = [...(p.videos || [])];
+    renderExistingMedia();
+  } else {
+    document.getElementById('product-modal-title').textContent = '新增商品';
+    document.getElementById('pm-id').value = '';
+    ['pm-name','pm-model','pm-price','pm-orig-price','pm-sort','pm-size','pm-size-unit','pm-desc','pm-badge','pm-specs'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pm-featured').checked = false;
+  }
+  document.getElementById('product-modal-bg').classList.add('open');
+};
+
+function renderExistingMedia() {
+  const imgWrap = document.getElementById('img-previews');
+  const vidWrap = document.getElementById('vid-previews');
+  imgWrap.innerHTML = editingImageUrls.map((url, i) => `
+    <div class="media-preview-item">
+      <img src="${url}">
+      <button class="media-preview-remove" onclick="removeExistingImg(${i})">✕</button>
+    </div>`).join('');
+  vidWrap.innerHTML = editingVideoUrls.map((url, i) => `
+    <div class="media-preview-item">
+      <video src="${url}"></video>
+      <button class="media-preview-remove" onclick="removeExistingVid(${i})">✕</button>
+    </div>`).join('');
+}
+
+window.removeExistingImg = function(i) { editingImageUrls.splice(i, 1); renderExistingMedia(); };
+window.removeExistingVid = function(i) { editingVideoUrls.splice(i, 1); renderExistingMedia(); };
+window.closeProductModal = function() { document.getElementById('product-modal-bg').classList.remove('open'); };
+
+window.handleImgUpload = function(input) {
+  Array.from(input.files).forEach(file => {
+    pendingImages.push(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wrap = document.getElementById('img-previews');
+      const idx = pendingImages.length - 1;
+      wrap.insertAdjacentHTML('beforeend', `
+        <div class="media-preview-item" id="pending-img-${idx}">
+          <img src="${e.target.result}">
+          <button class="media-preview-remove" onclick="removePendingImg(${idx})">✕</button>
+        </div>`);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+};
+
+window.handleVidUpload = function(input) {
+  Array.from(input.files).forEach(file => {
+    pendingVideos.push(file);
+    const url = URL.createObjectURL(file);
+    const idx = pendingVideos.length - 1;
+    document.getElementById('vid-previews').insertAdjacentHTML('beforeend', `
+      <div class="media-preview-item" id="pending-vid-${idx}">
+        <video src="${url}"></video>
+        <button class="media-preview-remove" onclick="removePendingVid(${idx})">✕</button>
+      </div>`);
+  });
+  input.value = '';
+};
+
+window.removePendingImg = function(i) { pendingImages[i] = null; document.getElementById('pending-img-' + i)?.remove(); };
+window.removePendingVid = function(i) { pendingVideos[i] = null; document.getElementById('pending-vid-' + i)?.remove(); };
+
+async function uploadFile(file, path) {
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
+}
+
+window.saveProduct = async function() {
+  const name = document.getElementById('pm-name').value.trim();
+  const price = parseInt(document.getElementById('pm-price').value);
+  if (!name || !price) { toast('請填寫商品名稱和售價'); return; }
+
+  const btn = document.getElementById('pm-save-btn');
+  btn.disabled = true; btn.textContent = '儲存中…';
+
+  try {
+    // Upload new images
+    const newImgUrls = await Promise.all(
+      pendingImages.filter(Boolean).map(f => uploadFile(f, `products/${Date.now()}_${f.name}`))
+    );
+    const newVidUrls = await Promise.all(
+      pendingVideos.filter(Boolean).map(f => uploadFile(f, `products/videos/${Date.now()}_${f.name}`))
+    );
+
+    const specsRaw = document.getElementById('pm-specs').value;
+    const specs = specsRaw.split(',').map(s => s.trim()).filter(Boolean).map(s => ({
+      text: s.startsWith('*') ? s.slice(1) : s,
+      highlight: s.startsWith('*')
+    }));
+
+    const data = {
+      name,
+      model: document.getElementById('pm-model').value.trim(),
+      price,
+      origPrice: parseInt(document.getElementById('pm-orig-price').value) || null,
+      sortOrder: parseInt(document.getElementById('pm-sort').value) || 99,
+      size: document.getElementById('pm-size').value.trim(),
+      sizeUnit: document.getElementById('pm-size-unit').value.trim(),
+      description: document.getElementById('pm-desc').value.trim(),
+      badge: document.getElementById('pm-badge').value.trim() || null,
+      featured: document.getElementById('pm-featured').checked,
+      specs,
+      images: [...editingImageUrls, ...newImgUrls],
+      videos: [...editingVideoUrls, ...newVidUrls],
+      active: true,
+      updatedAt: new Date(),
+    };
+
+    const editId = document.getElementById('pm-id').value;
+    if (editId) {
+      await updateDoc(doc(db, 'products', editId), data);
+      toast('✓ 商品已更新');
+    } else {
+      data.createdAt = new Date();
+      await addDoc(collection(db, 'products'), data);
+      toast('✓ 商品已新增');
+    }
+
+    closeProductModal();
+    loadProducts();
+  } catch (e) {
+    toast('儲存失敗：' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '儲存商品';
+};
+
+window.toggleProduct = async function(id, currentActive) {
+  await updateDoc(doc(db, 'products', id), { active: !currentActive });
+  toast(currentActive ? '商品已下架' : '商品已上架');
+  loadProducts();
+};
+
+window.deleteProduct = async function(id) {
+  if (!confirm('確定刪除此商品？')) return;
+  await deleteDoc(doc(db, 'products', id));
+  toast('✓ 商品已刪除');
+  loadProducts();
+};
+
+// ── ORDERS ────────────────────────────────────────────
+async function loadOrders() {
+  const snap = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
+  allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderOrdersTable(allOrders);
+}
+
+window.filterOrders = function(status) {
+  const filtered = status ? allOrders.filter(o => o.status === status) : allOrders;
+  renderOrdersTable(filtered);
+};
+
+function renderOrdersTable(orders) {
+  document.getElementById('orders-body').innerHTML = orders.length
+    ? orders.map(o => `<tr>
+        <td style="font-family:'Space Mono',monospace;font-size:11px;">${o.id}</td>
+        <td>${o.buyer?.name || '—'}<br><span style="font-size:11px;color:var(--muted);">${o.buyer?.phone || ''}</span></td>
+        <td style="color:var(--gold);">NT$ ${(o.totalAmount||0).toLocaleString()}</td>
+        <td style="font-size:11px;">${{Credit:'信用卡',ATM:'ATM',CVS:'超商'}[o.paymentType]||o.paymentType}</td>
+        <td><span class="tbl-badge badge-${o.status}">${statusLabel(o.status)}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${o.createdAt?.toDate?.()?.toLocaleString('zh-TW') || '—'}</td>
+        <td><button class="tbl-action" onclick="openLogisticsModal('${o.id}')">物流更新</button></td>
+      </tr>`).join('')
+    : '<tr class="loading-row"><td colspan="7">尚無訂單</td></tr>';
+}
+
+// ── LOGISTICS MODAL ───────────────────────────────────
+window.openLogisticsModal = function(orderNo) {
+  const o = allOrders.find(x => x.id === orderNo);
+  if (!o) return;
+  document.getElementById('lm-order-no').value = orderNo;
+  document.getElementById('lm-order-no-display').textContent = orderNo;
+  document.getElementById('lm-note').value = '';
+  document.getElementById('lm-order-status').value = '';
+  document.getElementById('lm-status').value = '商品備貨中';
+  document.getElementById('lm-custom-group').style.display = 'none';
+
+  // timeline
+  const logs = o.logistics || [];
+  document.getElementById('lm-timeline').innerHTML = logs.length
+    ? [...logs].reverse().map(l => `
+        <div class="lt-item">
+          <div class="lt-time">${new Date(l.time).toLocaleString('zh-TW')}</div>
+          <div class="lt-status">${l.status}</div>
+          ${l.note ? `<div class="lt-note">${l.note}</div>` : ''}
+        </div>`).join('')
+    : '<div style="color:var(--muted);font-size:12px;padding:0 0 16px 20px;">尚無記錄</div>';
+
+  document.getElementById('logistics-modal-bg').classList.add('open');
+};
+
+document.getElementById('lm-status').addEventListener('change', function() {
+  document.getElementById('lm-custom-group').style.display = this.value === '自訂…' ? 'block' : 'none';
+});
+
+window.closeLogisticsModal = function() { document.getElementById('logistics-modal-bg').classList.remove('open'); };
+
+window.submitLogistics = async function() {
+  const orderNo = document.getElementById('lm-order-no').value;
+  let statusText = document.getElementById('lm-status').value;
+  if (statusText === '自訂…') statusText = document.getElementById('lm-custom-status').value.trim();
+  const note = document.getElementById('lm-note').value.trim();
+  const newOrderStatus = document.getElementById('lm-order-status').value;
+
+  if (!statusText) { toast('請選擇物流狀態'); return; }
+
+  try {
+    const logEntry = { status: statusText, note, time: new Date().toISOString() };
+    const updateData = { logistics: arrayUnion(logEntry) };
+    if (newOrderStatus) updateData.status = newOrderStatus;
+    await updateDoc(doc(db, 'orders', orderNo), updateData);
+    toast('✓ 物流已更新');
+    closeLogisticsModal();
+    loadOrders();
+  } catch (e) {
+    toast('更新失敗：' + e.message);
+  }
+};
+
+// ── ENQUIRIES ─────────────────────────────────────────
+async function loadEnquiries() {
+  const snap = await getDocs(query(collection(db, 'enquiries'), orderBy('createdAt', 'desc')));
+  const list = document.getElementById('enquiries-list');
+  if (snap.empty) {
+    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;">尚無客服訊息</p>';
+    return;
+  }
+  const openCount = snap.docs.filter(d => d.data().status === 'open').length;
+  const badge = document.getElementById('enq-badge');
+  if (openCount > 0) { badge.style.display='inline'; badge.textContent = openCount; }
+  else { badge.style.display='none'; }
+
+  list.innerHTML = snap.docs.map(d => {
+    const e = d.data();
+    const date   = e.createdAt?.toDate?.()?.toLocaleString('zh-TW') || '—';
+    const isOpen = e.status !== 'closed';
+    const msgs   = e.messages || (e.body ? [{role:'user', text:e.body, time:''}] : []);
+
+    const threadHtml = msgs.map(m => {
+      if(m.role==='system') return `<div style="text-align:center;font-size:11px;color:var(--muted);padding:4px 0;">${m.text}</div>`;
+      const isMerchant = m.role === 'merchant';
+      return `<div style="display:flex;gap:10px;${isMerchant?'flex-direction:row-reverse;':''}margin-bottom:10px;">
+        <div style="width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;background:${isMerchant?'rgba(0,230,118,0.12)':'rgba(0,170,255,0.12)'};color:${isMerchant?'var(--green)':'var(--accent)'};">${isMerchant?'MER':'U'}</div>
+        <div style="max-width:80%;">
+          <div style="padding:9px 13px;background:var(--card);border:1px solid var(--border);font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;border-radius:4px;">${m.text}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;${isMerchant?'text-align:right;':''}">${m.time||''}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div style="padding:18px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;">
+        <div>
+          <div style="font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:4px;">${e.type||'—'}</div>
+          <div style="font-size:15px;font-weight:500;margin-bottom:4px;">${e.title||'—'}</div>
+          <div style="font-size:12px;color:var(--muted);">${date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span class="tbl-badge ${isOpen?'badge-pending':'badge-failed'}" style="border-radius:999px;">${isOpen?'OPEN':'CLOSED'}</span>
+          ${isOpen ? `<button class="tbl-action" onclick="closeEnquiry('${d.id}', this)">結單</button>` : ''}
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">${threadHtml}</div>
+      ${isOpen ? `
+      <div style="display:flex;gap:10px;align-items:flex-end;padding-top:12px;border-top:1px solid var(--border);">
+        <textarea id="enq-reply-${d.id}" placeholder="輸入回覆內容…"
+          style="flex:1;background:var(--black);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:inherit;font-size:13px;outline:none;resize:none;height:68px;border-radius:4px;transition:border-color .2s;"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <button class="tbl-action" onclick="replyEnquiry('${d.id}',this)" style="white-space:nowrap;height:40px;">回覆</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.replyEnquiry = async function(id, btn) {
+  const textarea = document.getElementById(`enq-reply-${id}`);
+  const text = textarea.value.trim();
+  if (!text) { toast('請輸入回覆內容'); return; }
+  btn.disabled = true; btn.textContent = '…';
+  const entry = { role:'merchant', text, time: new Date().toLocaleString('zh-TW') };
+  try {
+    await updateDoc(doc(db, 'enquiries', id), { messages: arrayUnion(entry) });
+    toast('✓ 回覆已送出');
+    loadEnquiries();
+  } catch(e) {
+    toast('失敗：' + e.message);
+    btn.disabled = false; btn.textContent = '回覆';
+  }
+};
+
+window.closeEnquiry = async function(id, btn) {
+  btn.disabled = true; btn.textContent = '…';
+  await updateDoc(doc(db, 'enquiries', id), { status: 'closed' });
+  toast('✓ 已結單');
+  loadEnquiries();
+};
+
+// ── HELPERS ───────────────────────────────────────────
+function statusLabel(s) {
+  return { pending:'待付款', paid:'已付款', shipped:'已出貨', delivered:'已送達', failed:'付款失敗' }[s] || s;
+}
+function toast(msg) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+window.toast = toast;
+</script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:#0d1117;
+  --c-surface:#161b22;
+  --c-surface2:#1c2230;
+  --c-border:#2a3347;
+  --c-accent:#00aaff;
+  --c-accent2:#0066cc;
+  --c-text:#e6edf3;
+  --c-muted:#7d8590;
+  --c-success:#39d353;
+  --c-warn:#f0a500;
+  --radius:8px;
+  --font-en:'Barlow',sans-serif;
+  --font-zh:'Noto Sans TC',sans-serif;
+}
+.wrap{background:var(--c-bg);min-height:600px;padding:2rem 1.5rem;font-family:var(--font-zh)}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--c-border)}
+.logo-mark{width:32px;height:32px;background:var(--c-accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2}
+.site-name{font-family:var(--font-en);font-size:15px;font-weight:600;color:var(--c-text);letter-spacing:0.05em}
+.site-name span{color:var(--c-accent)}
+.breadcrumb{margin-left:auto;font-size:12px;color:var(--c-muted)}
+.breadcrumb a{color:var(--c-accent);text-decoration:none}
+
+.page-title{font-family:var(--font-en);font-size:22px;font-weight:600;color:var(--c-text);letter-spacing:0.03em;margin-bottom:4px}
+.page-title span{color:var(--c-accent)}
+.page-sub{font-size:13px;color:var(--c-muted);margin-bottom:1.75rem}
+
+.card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--c-accent2),var(--c-accent),transparent)}
+
+label{display:block;font-size:12px;color:var(--c-muted);margin-bottom:6px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;font-family:var(--font-en)}
+select,input[type=text],textarea{
+  width:100%;font-family:var(--font-zh);font-size:14px;
+  padding:9px 12px;
+  border:1px solid var(--c-border);
+  border-radius:var(--radius);
+  background:var(--c-surface2);
+  color:var(--c-text);
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+select:focus,input[type=text]:focus,textarea:focus{
+  border-color:var(--c-accent);
+  box-shadow:0 0 0 3px rgba(0,170,255,0.12);
+}
+textarea{resize:vertical;min-height:120px;line-height:1.7}
+.form-row{margin-bottom:1.25rem}
+
+.btn-row{display:flex;justify-content:flex-end;margin-top:1.25rem;gap:10px}
+button.primary{
+  background:var(--c-accent);color:#fff;
+  border:none;border-radius:var(--radius);
+  padding:9px 22px;font-size:13px;font-weight:600;
+  font-family:var(--font-en);letter-spacing:0.05em;
+  cursor:pointer;transition:background 0.15s,transform 0.1s;
+  display:flex;align-items:center;gap:6px;
+}
+button.primary:hover{background:var(--c-accent2)}
+button.primary:active{transform:scale(0.98)}
+button.secondary{
+  background:transparent;color:var(--c-muted);
+  border:1px solid var(--c-border);
+  border-radius:var(--radius);padding:9px 18px;
+  font-size:13px;font-family:var(--font-en);
+  cursor:pointer;transition:border-color 0.15s,color 0.15s;
+}
+button.secondary:hover{border-color:var(--c-accent);color:var(--c-accent)}
+
+.section-divider{font-family:var(--font-en);font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--c-muted);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.section-divider::after{content:'';flex:1;height:1px;background:var(--c-border)}
+
+.thread{display:flex;flex-direction:column;gap:14px}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg.merchant{flex-direction:row-reverse}
+.avatar{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;font-family:var(--font-en)}
+.avatar.user{background:rgba(0,170,255,0.15);color:var(--c-accent);border:1px solid rgba(0,170,255,0.3)}
+.avatar.merchant{background:rgba(57,211,83,0.12);color:var(--c-success);border:1px solid rgba(57,211,83,0.3)}
+.bubble{max-width:80%;padding:10px 14px;font-size:14px;line-height:1.6;border-radius:var(--radius)}
+.bubble.user{background:var(--c-surface2);color:var(--c-text);border:1px solid var(--c-border);border-top-left-radius:2px}
+.bubble.merchant{background:rgba(57,211,83,0.08);color:#b7f5c4;border:1px solid rgba(57,211,83,0.2);border-top-right-radius:2px}
+.msg-meta{font-size:11px;color:var(--c-muted);margin-top:5px;font-family:var(--font-en)}
+.msg.merchant .msg-meta{text-align:right}
+
+.reply-area{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--c-border)}
+.role-switch{display:flex;gap:8px;margin-bottom:1rem}
+.role-switch button{font-size:12px;padding:4px 14px;border-radius:999px;cursor:pointer;border:1px solid var(--c-border);background:transparent;color:var(--c-muted);font-family:var(--font-en);transition:all 0.15s}
+.role-switch button.active-user{background:rgba(0,170,255,0.12);color:var(--c-accent);border-color:rgba(0,170,255,0.4)}
+.role-switch button.active-merchant{background:rgba(57,211,83,0.1);color:var(--c-success);border-color:rgba(57,211,83,0.35)}
+
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:999px;font-family:var(--font-en);font-weight:600;letter-spacing:0.04em;margin-left:10px}
+.status-badge.open{background:rgba(240,165,0,0.12);color:var(--c-warn);border:1px solid rgba(240,165,0,0.3)}
+.status-badge.closed{background:rgba(125,133,144,0.15);color:var(--c-muted);border:1px solid var(--c-border)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+.pulse{animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.ticket-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--c-border)}
+.ticket-type{font-size:11px;font-family:var(--font-en);letter-spacing:0.06em;color:var(--c-accent);text-transform:uppercase;margin-bottom:4px}
+.ticket-title{font-size:16px;font-weight:500;color:var(--c-text)}
+
+#thread-view{display:none}
+</style>
+
+<div class="wrap">
+  <div class="top-bar">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    </div>
+    <div class="site-name">PORPOISE<span>TECH</span></div>
+    <div class="breadcrumb"><a href="#">首頁</a> / <a href="#">客服中心</a> / 聯絡商家</div>
+  </div>
+
+  <div class="page-title">SUPPORT <span>REQUEST</span></div>
+  <div class="page-sub">有任何問題或需要協助，歡迎直接向商家提出，我們將在 1–2 個工作天內回覆</div>
+
+  <div id="new-ticket-view">
+    <div class="card">
+      <div class="form-row">
+        <label>Issue Type</label>
+        <select id="issue-type">
+          <option>訂單查詢 / 出貨狀態</option>
+          <option>商品問題 / 退換貨申請</option>
+          <option>付款相關問題</option>
+          <option>顯示器規格詢問</option>
+          <option>其他問題</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Subject</label>
+        <input type="text" id="msg-title" placeholder="請簡短描述您的問題"/>
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea id="msg-body" placeholder="請詳細說明問題，例如：訂單編號、商品型號、問題發生時間…"></textarea>
+      </div>
+      <div style="font-size:12px;color:var(--c-muted);margin-top:0.5rem">送出後將開啟對話串，商家可直接在此回覆。</div>
+      <div class="btn-row">
+        <button class="primary" onclick="submitTicket()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          SUBMIT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="thread-view">
+    <div class="card">
+      <div class="ticket-header">
+        <div>
+          <div class="ticket-type" id="thread-type-label"></div>
+          <div class="ticket-title" id="thread-title-label"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <span class="status-badge open" id="ticket-badge"><span class="dot pulse"></span><span id="status-text">OPEN</span></span>
+          <button class="secondary" style="font-size:11px;padding:5px 12px" onclick="newTicket()">＋ NEW</button>
+        </div>
+      </div>
+
+      <div class="section-divider">Conversation</div>
+      <div class="thread" id="thread-messages"></div>
+
+      <div class="reply-area">
+        <textarea id="reply-input" placeholder="輸入回覆內容…" style="min-height:80px;margin-bottom:12px"></textarea>
+        <div class="btn-row" style="margin-top:0">
+          <button class="secondary" onclick="closeTicket()">CLOSE TICKET</button>
+          <button class="primary" onclick="sendReply()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            SEND
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, arrayUnion, serverTimestamp }
+                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAeiMwEU4UPuklw9d0AkHiG235pinQjsGo",
+  authDomain: "monitor-c671b.firebaseapp.com",
+  projectId: "monitor-c671b",
+  storageBucket: "monitor-c671b.firebasestorage.app",
+  messagingSenderId: "589974228759",
+  appId: "1:589974228759:web:64edbf0fd4160bb603b152"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+let messages = [], ticketClosed = false, currentDocId = null, unsubscribe = null;
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function now(){ const d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
+
+// ── 產生隨機 token ──────────────────────────────────────
+function genToken(){
+  return crypto.randomUUID ? crypto.randomUUID()
+    : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+}
+
+// ── 儲存 token 到 sessionStorage（重整後仍可繼續查看） ──
+function saveSession(docId, token){
+  sessionStorage.setItem('eq_docId', docId);
+  sessionStorage.setItem('eq_token', token);
+}
+function clearSession(){
+  sessionStorage.removeItem('eq_docId');
+  sessionStorage.removeItem('eq_token');
+}
+
+function renderMessages(){
+  const c = document.getElementById('thread-messages');
+  c.innerHTML = messages.map(m => {
+    if(m.role==='system') return `<div style="text-align:center;font-size:11px;color:var(--c-muted);padding:4px 0;font-family:'Barlow',sans-serif;letter-spacing:0.04em">${m.text}</div>`;
+    const isMerchant = m.role==='merchant';
+    return `<div class="msg${isMerchant?' merchant':''}">
+      <div class="avatar ${isMerchant?'merchant':'user'}">${isMerchant?'MER':'YOU'}</div>
+      <div>
+        <div class="bubble ${isMerchant?'merchant':'user'}">${esc(m.text)}</div>
+        <div class="msg-meta">${isMerchant?'Merchant':'User'} · ${m.time}</div>
+      </div>
+    </div>`;
+  }).join('');
+  c.scrollTop = c.scrollHeight;
+}
+
+// ── 啟動 onSnapshot 即時監聽 ────────────────────────────
+function startListening(docId, title, type){
+  if(unsubscribe) unsubscribe(); // 先取消上一個監聽
+  unsubscribe = onSnapshot(doc(db, 'enquiries', docId), (snap) => {
+    if(!snap.exists()) return;
+    messages = snap.data().messages || [];
+    renderMessages();
+  }, (err) => {
+    console.error('監聽失敗：', err);
+  });
+  document.getElementById('new-ticket-view').style.display = 'none';
+  document.getElementById('thread-view').style.display     = 'block';
+  document.getElementById('thread-type-label').textContent  = type ? type.toUpperCase() : '';
+  document.getElementById('thread-title-label').textContent = title || '';
+}
+
+// ── 送出新問題 → 存進 Firestore ────────────────────────
+window.submitTicket = async function(){
+  const title = document.getElementById('msg-title').value.trim();
+  const body  = document.getElementById('msg-body').value.trim();
+  const type  = document.getElementById('issue-type').value;
+  if(!title){ alert('請填寫標題'); return; }
+  if(!body){  alert('請填寫問題說明'); return; }
+
+  const btn = document.querySelector('#new-ticket-view button.primary');
+  btn.disabled = true;
+  const svgEl = btn.querySelector('svg');
+  if(svgEl) svgEl.remove();
+  btn.textContent = '送出中…';
+
+  const t = now();
+  const token = genToken(); // 產生此 ticket 的專屬 token
+
+  try {
+    const docRef = await addDoc(collection(db, 'enquiries'), {
+      type, title, token,
+      messages: [{role:'user', text:body, time:t}],
+      status: 'open',
+      createdAt: serverTimestamp(),
+    });
+    currentDocId = docRef.id;
+    saveSession(currentDocId, token);
+    startListening(currentDocId, title, type);
+  } catch(e){
+    alert('送出失敗：' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> SUBMIT';
+  }
+};
+
+// ── 買家回覆 → 存進 Firestore ──────────────────────────
+window.sendReply = async function(){
+  if(ticketClosed || !currentDocId) return;
+  const input = document.getElementById('reply-input');
+  const text  = input.value.trim();
+  if(!text) return;
+  const entry = {role:'user', text, time:now()};
+  try {
+    await updateDoc(doc(db,'enquiries', currentDocId), { messages: arrayUnion(entry) });
+    input.value = '';
+    // onSnapshot 會自動更新畫面，不需要手動 push
+  } catch(e){
+    alert('送出失敗：' + e.message);
+  }
+};
+
+window.closeTicket = function(){
+  if(ticketClosed) return;
+  ticketClosed = true;
+  if(unsubscribe){ unsubscribe(); unsubscribe = null; }
+  const badge = document.getElementById('ticket-badge');
+  badge.className = 'status-badge closed';
+  document.getElementById('status-text').textContent = 'CLOSED';
+  messages.push({role:'system', text:'此問題已結單，感謝您的聯繫。'});
+  document.querySelector('.reply-area').style.opacity       = '0.35';
+  document.querySelector('.reply-area').style.pointerEvents = 'none';
+  clearSession();
+  renderMessages();
+};
+
+window.newTicket = function(){
+  if(unsubscribe){ unsubscribe(); unsubscribe = null; }
+  ticketClosed = false; messages = []; currentDocId = null;
+  clearSession();
+  document.getElementById('msg-title').value = '';
+  document.getElementById('msg-body').value  = '';
+  document.getElementById('new-ticket-view').style.display = 'block';
+  document.getElementById('thread-view').style.display     = 'none';
+  document.querySelector('.reply-area').style.opacity       = '';
+  document.querySelector('.reply-area').style.pointerEvents = '';
+};
+</script>

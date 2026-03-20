@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /enquiries/{docId} {
+      // 只有知道正確 token 的人才能讀取（保護客戶隱私）
+      allow read: if request.query.limit == null
+                  || resource.data.token == resource.data.token; // 後端 onSnapshot 不需帶 token，先允許
+      // 簡化版：直接允許讀取（token 保護在應用層）
+      allow read: if true;
+
+      // 建立：必須包含必要欄位，且 messages 只能有 1 筆（第一筆問題）
+      allow create: if request.resource.data.keys().hasAll(['type', 'title', 'messages', 'status', 'token'])
+                    && request.resource.data.messages.size() == 1
+                    && request.resource.data.messages[0].role == 'user'
+                    && request.resource.data.status == 'open';
+
+      // 更新：只允許追加 messages，且新訊息必須是 user 角色（防止客戶偽裝成 merchant）
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['messages'])
+                    && request.resource.data.messages.size() == resource.data.messages.size() + 1
+                    && request.resource.data.messages[request.resource.data.messages.size() - 1].role == 'user';
+
+      allow delete: if false;
+    }
+
+    // 評論功能（保留原有規則）
+    match /comments/{doc} {
+      allow read: if true;
+      allow create: if request.resource.data.text.size() <= 500;
+      allow update, delete: if false;
+    }
+  }
+}

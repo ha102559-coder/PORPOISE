@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>訂單查詢 · PORPOISE</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Oswald:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#080c10;--dark:#0e1318;--card:#131a22;--border:rgba(255,255,255,0.07);
+  --accent:#00c8ff;--accent2:#0077ff;--gold:#f0b429;--text:#e8edf2;--muted:#6b7a8d;
+  --green:#00e676;--red:#ff4444;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:15px;line-height:1.7;min-height:100vh;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,12,16,0.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 5%;}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:62px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
+.logo-text{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:3px;color:#fff;}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s;}
+.nav-back:hover{color:var(--accent);}
+.nav-back svg{width:14px;height:14px;}
+
+/* LAYOUT */
+.page{max-width:960px;margin:0 auto;padding:48px 5% 80px;}
+.page-head{margin-bottom:40px;}
+.page-tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--accent);margin-bottom:10px;}
+.page-title{font-family:'Oswald',sans-serif;font-size:36px;font-weight:600;}
+.page-title em{font-style:normal;color:var(--accent);}
+
+/* SEARCH BOX */
+.search-card{background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:32px;}
+.search-card h3{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);margin-bottom:20px;}
+.search-row{display:flex;gap:12px;}
+.search-input{flex:1;background:var(--black);border:1px solid var(--border);color:var(--text);padding:12px 16px;font-family:'Space Mono',monospace;font-size:13px;letter-spacing:1px;outline:none;transition:border-color .2s;}
+.search-input::placeholder{color:var(--muted);letter-spacing:0;}
+.search-input:focus{border-color:var(--accent);}
+.search-btn{background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:12px 28px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;white-space:nowrap;transition:opacity .2s;}
+.search-btn:hover{opacity:.85;}
+.search-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ORDER CARD */
+.order-result{display:none;}
+.order-card{background:var(--dark);border:1px solid var(--border);margin-bottom:20px;position:relative;overflow:hidden;}
+.order-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),transparent);}
+.oc-head{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.oc-no{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:1px;}
+.oc-title{font-family:'Oswald',sans-serif;font-size:20px;letter-spacing:1px;}
+.oc-body{padding:24px 28px;}
+.oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;font-size:11px;font-family:'Space Mono',monospace;font-weight:700;letter-spacing:2px;border-radius:2px;}
+.status-pending{background:rgba(240,180,41,0.12);color:var(--gold);border:1px solid rgba(240,180,41,0.3);}
+.status-paid{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.status-shipped{background:rgba(0,200,255,0.1);color:var(--accent);border:1px solid rgba(0,200,255,0.3);}
+.status-delivered{background:rgba(0,200,255,0.15);color:#fff;border:1px solid var(--accent);}
+.status-failed{background:rgba(255,68,68,0.1);color:var(--red);border:1px solid rgba(255,68,68,0.3);}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.pulse{animation:blink 1.8s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* INFO ROWS */
+.info-section{margin-bottom:0;}
+.info-label{font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Oswald',sans-serif;font-weight:500;margin-bottom:12px;text-transform:uppercase;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;}
+.info-row:last-child{border:none;}
+.info-key{color:var(--muted);}
+.info-val{color:var(--text);font-weight:500;text-align:right;}
+.info-val.accent{color:var(--accent);}
+.info-val.gold{color:var(--gold);font-family:'Space Mono',monospace;}
+
+/* ITEMS TABLE */
+.items-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border);}
+.items-table{width:100%;border-collapse:collapse;}
+.items-table th{text-align:left;font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Oswald',sans-serif;padding:0 0 10px;border-bottom:1px solid var(--border);}
+.items-table td{padding:10px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+.items-table td:last-child{text-align:right;color:var(--gold);font-family:'Space Mono',monospace;}
+.items-table tr:last-child td{border:none;}
+.item-name{font-weight:500;}
+.item-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.total-row{display:flex;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);align-items:center;}
+.total-label{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);}
+.total-val{font-family:'Space Mono',monospace;font-size:22px;color:var(--gold);}
+
+/* LOGISTICS TIMELINE */
+.logistics-section{margin-top:20px;}
+.timeline{padding-left:20px;border-left:1px solid var(--border);}
+.tl-item{position:relative;padding:0 0 20px 24px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{position:absolute;left:-5px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid var(--dark);}
+.tl-item:not(:first-child) .tl-dot{background:var(--muted);}
+.tl-time{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px;}
+.tl-status{font-size:14px;font-weight:500;color:var(--text);}
+.tl-note{font-size:12px;color:var(--muted);margin-top:2px;}
+.tl-empty{font-size:13px;color:var(--muted);padding:4px 0 4px 24px;}
+
+/* PAYMENT PENDING */
+.payment-pending-banner{display:none;background:rgba(240,180,41,0.08);border:1px solid rgba(240,180,41,0.25);padding:20px 24px;margin-bottom:20px;}
+.ppb-title{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;}
+.ppb-desc{font-size:13px;color:var(--muted);line-height:1.8;}
+
+/* PAY NOW BUTTON */
+.pay-btn{display:none;background:linear-gradient(90deg,var(--accent2),var(--accent));color:#fff;border:none;padding:12px 32px;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:16px;transition:opacity .2s,transform .2s;}
+.pay-btn:hover{opacity:.85;transform:translateY(-1px);}
+.pay-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ECPAY FORM */
+#ecpay-form{display:none;}
+
+/* ERROR / LOADING */
+.msg-box{background:var(--dark);border:1px solid var(--border);padding:40px;text-align:center;display:none;}
+.msg-box.error{border-color:rgba(255,68,68,0.3);}
+.msg-icon{font-size:36px;margin-bottom:12px;}
+.msg-title{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:2px;margin-bottom:8px;}
+.msg-sub{font-size:13px;color:var(--muted);}
+.spinner{display:inline-block;width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PAYMENT SUCCESS BANNER */
+.success-banner{display:none;background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.25);padding:20px 24px;margin-bottom:20px;display:none;}
+.sb-title{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px;color:var(--green);margin-bottom:6px;}
+.sb-desc{font-size:13px;color:var(--muted);}
+
+@media(max-width:640px){
+  .oc-grid{grid-template-columns:1fr;}
+  .search-row{flex-direction:column;}
+  .oc-head{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html">
+      <div class="logo-icon"></div>
+      <div class="logo-text">PORPOISE</div>
+    </a>
+    <a class="nav-back" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      返回首頁
+    </a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-head">
+    <div class="page-tag">ORDER TRACKING</div>
+    <h1 class="page-title">訂單 <em>查詢</em></h1>
+  </div>
+
+  <!-- 搜尋列 -->
+  <div class="search-card">
+    <h3>輸入訂單編號</h3>
+    <div class="search-row">
+      <input class="search-input" id="search-input" placeholder="例：PRP12345678901234" maxlength="30"
+        onkeydown="if(event.key==='Enter')searchOrder()">
+      <button class="search-btn" id="search-btn" onclick="searchOrder()">查詢</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="msg-box" id="msg-loading">
+    <div class="spinner"></div>
+    <div class="msg-title">查詢中…</div>
+  </div>
+
+  <!-- Error -->
+  <div class="msg-box error" id="msg-error">
+    <div class="msg-icon">⚠</div>
+    <div class="msg-title" id="err-title">查無此訂單</div>
+    <div class="msg-sub" id="err-sub">請確認訂單編號是否正確</div>
+  </div>
+
+  <!-- 結果 -->
+  <div class="order-result" id="order-result">
+
+    <!-- 付款待完成提示 -->
+    <div class="payment-pending-banner" id="ppb">
+      <div class="ppb-title">⚡ 等待付款中</div>
+      <div class="ppb-desc">您的訂單已建立，請完成付款以確認訂單。信用卡、ATM 或超商代碼付款均可使用。</div>
+      <button class="pay-btn" id="pay-btn" onclick="repay()">立即付款 →</button>
+    </div>
+
+    <!-- 付款成功提示 -->
+    <div class="success-banner" id="success-banner">
+      <div class="sb-title">✓ 付款成功</div>
+      <div class="sb-desc">已確認收到您的付款，我們將盡快安排出貨。</div>
+    </div>
+
+    <!-- 主訂單卡 -->
+    <div class="order-card">
+      <div class="oc-head">
+        <div>
+          <div class="oc-no" id="r-order-no"></div>
+          <div class="oc-title">訂單詳情</div>
+        </div>
+        <div id="r-status-badge"></div>
+      </div>
+
+      <div class="oc-body">
+        <div class="oc-grid">
+          <!-- 左欄：訂單資訊 -->
+          <div>
+            <div class="info-label">訂單資訊</div>
+            <div class="info-row"><span class="info-key">付款方式</span><span class="info-val accent" id="r-payment"></span></div>
+            <div class="info-row"><span class="info-key">建立時間</span><span class="info-val" id="r-created"></span></div>
+            <div class="info-row"><span class="info-key">付款時間</span><span class="info-val" id="r-paid"></span></div>
+          </div>
+          <!-- 右欄：買家資訊 -->
+          <div>
+            <div class="info-label">買家資訊</div>
+            <div class="info-row"><span class="info-key">姓名</span><span class="info-val" id="r-name"></span></div>
+            <div class="info-row"><span class="info-key">電話</span><span class="info-val" id="r-phone"></span></div>
+            <div class="info-row"><span class="info-key">地址</span><span class="info-val" id="r-address" style="max-width:180px;word-break:break-all;"></span></div>
+          </div>
+        </div>
+
+        <!-- 商品列表 -->
+        <div class="items-section">
+          <div class="info-label">購買商品</div>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>商品</th>
+                <th style="text-align:center">數量</th>
+                <th style="text-align:right">小計</th>
+              </tr>
+            </thead>
+            <tbody id="r-items"></tbody>
+          </table>
+          <div class="total-row">
+            <span class="total-label">訂單總計</span>
+            <span class="total-val" id="r-total"></span>
+          </div>
+        </div>
+
+        <!-- 物流時間軸 -->
+        <div class="logistics-section">
+          <div class="info-label" style="margin-top:24px;">物流動態</div>
+          <div class="timeline" id="r-logistics">
+            <div class="tl-empty">尚無物流記錄</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /order-result -->
+</div><!-- /page -->
+
+<!-- 綠界重新付款表單（動態生成後 submit） -->
+<form id="ecpay-form" method="POST" target="_self"></form>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAeiMwEU4UPuklw9d0AkHiG235pinQjsGo",
+  authDomain: "monitor-c671b.firebaseapp.com",
+  projectId: "monitor-c671b",
+  storageBucket: "monitor-c671b.firebasestorage.app",
+  messagingSenderId: "589974228759",
+  appId: "1:589974228759:web:64edbf0fd4160bb603b152",
+  measurementId: "G-8TD944Y15G"
+};
+const app = initializeApp(firebaseConfig);
+const fns = getFunctions(app, "us-central1");
+const queryOrder = httpsCallable(fns, 'queryOrder');
+
+// ── 狀態顯示設定 ──────────────────────────────────────
+const STATUS = {
+  pending:   { label:'待付款',  cls:'status-pending',   pulse:true  },
+  paid:      { label:'已付款',  cls:'status-paid',      pulse:false },
+  shipped:   { label:'已出貨',  cls:'status-shipped',   pulse:false },
+  delivered: { label:'已送達',  cls:'status-delivered', pulse:false },
+  failed:    { label:'付款失敗',cls:'status-failed',    pulse:false },
+};
+const PAYMENT_LABEL = { Credit:'信用卡', ATM:'ATM 轉帳', CVS:'超商代碼' };
+
+// ── 從 URL 自動帶入訂單編號 ────────────────────────────
+const params = new URLSearchParams(location.search);
+const urlNo = params.get('no');
+if (urlNo) {
+  document.getElementById('search-input').value = urlNo;
+  doSearch(urlNo);
+}
+
+// ── 搜尋入口（給按鈕用） ──────────────────────────────
+window.searchOrder = function() {
+  const no = document.getElementById('search-input').value.trim();
+  if (!no) { document.getElementById('search-input').focus(); return; }
+  doSearch(no);
+};
+
+// ── 核心查詢 ──────────────────────────────────────────
+async function doSearch(orderNo) {
+  setView('loading');
+
+  try {
+    const res = await queryOrder({ orderNo });
+    const d = res.data;
+    renderOrder(d);
+    setView('result');
+
+    // 更新 URL（方便書籤）
+    history.replaceState(null, '', `?no=${d.orderNo}`);
+  } catch (e) {
+    setView('error', e.message || '查無此訂單');
+  }
+}
+
+// ── 渲染訂單 ──────────────────────────────────────────
+function renderOrder(d) {
+  const s = STATUS[d.status] || { label: d.status, cls:'status-pending', pulse:false };
+
+  // 訂單編號 + 狀態徽章
+  document.getElementById('r-order-no').textContent = '訂單編號：' + d.orderNo;
+  document.getElementById('r-status-badge').innerHTML =
+    `<span class="status-badge ${s.cls}">
+       <span class="status-dot${s.pulse?' pulse':''}"></span>
+       ${s.label}
+     </span>`;
+
+  // 付款方式
+  document.getElementById('r-payment').textContent = PAYMENT_LABEL[d.paymentType] || d.paymentType;
+
+  // 時間
+  document.getElementById('r-created').textContent = d.createdAt ? fmtDate(d.createdAt) : '—';
+  document.getElementById('r-paid').textContent    = d.paidAt    ? fmtDate(d.paidAt)    : '—';
+
+  // 買家
+  document.getElementById('r-name').textContent    = d.buyer?.name    || '—';
+  document.getElementById('r-phone').textContent   = d.buyer?.phone   || '—';
+  document.getElementById('r-address').textContent = d.buyer?.address || '—';
+
+  // 商品列表
+  const items = d.items || [];
+  document.getElementById('r-items').innerHTML = items.map(i => `
+    <tr>
+      <td><div class="item-name">${esc(i.name)}</div></td>
+      <td style="text-align:center;color:var(--muted);">× ${i.qty}</td>
+      <td>NT$ ${(i.price * i.qty).toLocaleString()}</td>
+    </tr>`).join('');
+  document.getElementById('r-total').textContent = 'NT$ ' + (d.totalAmount || 0).toLocaleString();
+
+  // 物流時間軸
+  const logs = [...(d.logistics || [])].reverse();
+  document.getElementById('r-logistics').innerHTML = logs.length
+    ? logs.map((l, i) => `
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-time">${fmtDate(l.time)}</div>
+          <div class="tl-status">${esc(l.status)}</div>
+          ${l.note ? `<div class="tl-note">${esc(l.note)}</div>` : ''}
+        </div>`).join('')
+    : '<div class="tl-empty">尚無物流記錄，請稍後再查詢</div>';
+
+  // 待付款提示
+  const ppb = document.getElementById('ppb');
+  const payBtn = document.getElementById('pay-btn');
+  if (d.status === 'pending') {
+    ppb.style.display = 'block';
+    payBtn.style.display = 'inline-flex';
+    // 存訂單資料供重新付款
+    window._pendingOrder = d;
+  } else {
+    ppb.style.display = 'none';
+    payBtn.style.display = 'none';
+  }
+
+  // 付款成功橫幅（從付款頁跳轉回來時顯示）
+  const sb = document.getElementById('success-banner');
+  sb.style.display = (d.status === 'paid' && params.get('paid') === '1') ? 'block' : 'none';
+}
+
+// ── 重新付款（呼叫 createOrder 重建表單） ─────────────
+window.repay = async function() {
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.textContent = '處理中…';
+
+  const o = window._pendingOrder;
+  if (!o) return;
+
+  try {
+    const createOrder = httpsCallable(fns, 'createOrder');
+    const res = await createOrder({
+      items: o.items,
+      buyer: o.buyer,
+      paymentType: o.paymentType
+    });
+    const { formUrl, params: fp } = res.data;
+    submitEcpayForm(formUrl, fp);
+  } catch (e) {
+    alert('建立付款失敗：' + e.message);
+    btn.disabled = false;
+    btn.textContent = '立即付款 →';
+  }
+};
+
+// ── 動態 submit 綠界表單 ──────────────────────────────
+function submitEcpayForm(url, params) {
+  const form = document.getElementById('ecpay-form');
+  form.action = url;
+  form.innerHTML = '';
+  Object.entries(params).forEach(([k, v]) => {
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = k; inp.value = v;
+    form.appendChild(inp);
+  });
+  form.submit();
+}
+
+// ── 視圖切換 ──────────────────────────────────────────
+function setView(v, errMsg) {
+  document.getElementById('msg-loading').style.display = v === 'loading' ? 'block' : 'none';
+  document.getElementById('msg-error').style.display   = v === 'error'   ? 'block' : 'none';
+  document.getElementById('order-result').style.display = v === 'result'  ? 'block' : 'none';
+  if (v === 'error') {
+    document.getElementById('err-sub').textContent = errMsg || '請確認訂單編號是否正確';
+  }
+}
+
+// ── 工具函式 ──────────────────────────────────────────
+function fmtDate(iso) {
+  return new Date(iso).toLocaleString('zh-TW', {
+    year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', hour12:false
+  });
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
