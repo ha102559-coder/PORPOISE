@@ -83,7 +83,7 @@ exports.createOrder = functions.https.onCall(async (data, context) => {
 
   // 組裝綠界參數
   // ReturnURL / ClientBackURL 請換成你的實際網域
-  const SITE_URL = "YOUR_SITE_URL"; // ← 部署後替換，例如 https://yoursite.com
+  const SITE_URL = "https:"; // ← 部署後替換，例如 https://yoursite.com
 
   const params = {
     MerchantID: ECPAY.MerchantID,
