@@ -10,12 +10,12 @@ const db = admin.firestore();
 //  綠界設定
 // ═══════════════════════════════════════════════════════
 const ECPAY = {
-  MerchantID: "3103095",
-  HashKey: "JUi73W4Zh58OsEqE",
-  HashIV: "BjcWioK6rMb3O5Jv",
-  // 正式環境
+const ECPAY = {
+  MerchantID: process.env.ECPAY_MERCHANT_ID,
+  HashKey:    process.env.ECPAY_HASH_KEY,
+  HashIV:     process.env.ECPAY_HASH_IV,
   PaymentURL: "https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5",
-  QueryURL: "https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5",
+  QueryURL:   "https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5",
 };
 
 // ═══════════════════════════════════════════════════════
