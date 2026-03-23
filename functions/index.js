@@ -88,11 +88,11 @@ exports.createOrder = functions.https.onCall(async (data, context) => {
   const params = {
     MerchantID: ECPAY.MerchantID,
     MerchantTradeNo: merchantTradeNo,
-    MerchantTradeDate: new Date()
-      .toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false })
-      .replace(/\//g, "/")
-      .slice(0, 19),
-    PaymentType: "aio",
+  MerchantTradeDate: (() => {
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
+    const pad = n => String(n).padStart(2, '0');
+    return `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  })(),    PaymentType: "aio",
     TotalAmount: String(totalAmount),
     TradeDesc: "PORPOISE 顯示器",
     ItemName: itemName,
